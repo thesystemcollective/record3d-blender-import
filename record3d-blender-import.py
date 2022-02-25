@@ -46,27 +46,33 @@ def recreateActions(json):
   fcu_z = obj.animation_data.action.fcurves.new(data_path='location', index=2)
 
   for i in range(len(json)):
-    rawPos = json[i]
+    qx, qy, qz, qw, px, py, pz = json[i]
 
-    wxyz = mathutils.Vector([rawPos[3], rawPos[0], rawPos[1], rawPos[2]])
+    (px, py, pz) = (px, pz, -py)
+    (qx, qy, qz) = (qx, qz, -qy)
+
+    wxyz = mathutils.Vector([qw, qx, qy, qz])
 
     # apply rotation to quaternion animation
     quat = mathutils.Quaternion(wxyz)
 
-    pos = mathutils.Vector([rawPos[4], rawPos[5], rawPos[6]])
+    pos = mathutils.Vector([px, py, pz])
 
-    print('set keyframe pos', i, 'to', pos)
+#    print('set keyframe pos', i, 'to', pos)
 
-    realI = i + 1
+#    realI = i + 1
 
     obj.location = pos
     obj.keyframe_insert(data_path='location', frame=i, index=0)
     obj.keyframe_insert(data_path='location', frame=i, index=1)
     obj.keyframe_insert(data_path='location', frame=i, index=2)
 
-    obj.rotation_euler = quat.to_euler()
-    obj.keyframe_insert(data_path='rotation_euler', frame=i, index=0)
-    print('set keyframe rot', i, 'to', obj.rotation_euler)
+    obj.rotation_quaternion = quat
+    obj.keyframe_insert(data_path='rotation_quaternion', frame=i, index=0)
+    obj.keyframe_insert(data_path='rotation_quaternion', frame=i, index=1)
+    obj.keyframe_insert(data_path='rotation_quaternion', frame=i, index=2)
+    obj.keyframe_insert(data_path='rotation_quaternion', frame=i, index=3)
+#    print('set keyframe rot', i, 'to', obj.rotation_quaternion)
 
   obj.location = old_pos
   obj.rotation_euler = old_rot
